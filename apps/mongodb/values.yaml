@@ -1,0 +1,53 @@
+mongodb:
+  architecture: replicaset
+  arbiter:
+    enabled: false
+  replicaCount: 3
+  auth:
+    username: demo
+    database: poc
+    existingSecret: mongodb-secret
+  rbac:
+    create: true
+  metrics:
+    enabled: true
+    image:
+      tag: 0.11.2-debian-10-r393
+  resources:
+    limits:
+      cpu: "2.2"
+      memory: "6Gi"
+    requests:
+      cpu: "2"
+      memory: "4Gi"
+  tolerations:   
+    - key: "metallica"
+      operator: "Equal"
+      value: "perf"
+      effect: "NoSchedule"
+  initContainers:
+    - name: import-dump
+      image: busybox
+      env:
+        - name: DUMP_URI
+          value: https://io1h80.minio.lab.sspcloud.fr/diffusion/dump.zip
+      command: [ sh, -c ]
+      args:
+        [
+          "wget $DUMP_URI --output-document=/import/dump.zip
+          && unzip /import/dump.zip -d /import
+          && echo 'mongorestore --uri \"mongodb://$mongo_user:$mongo_pass@localhost:27017\" --drop 
+          --authenticationDatabase admin /docker-entrypoint-initdb.d/dump/' > /import/import.sh"
+        ]
+      volumeMounts:
+        - mountPath: /import
+          name: import-volume
+
+  extraVolumes:
+    - name: import-volume
+      emptyDir: {}
+
+  extraVolumeMounts:
+    - name: import-volume
+      mountPath: "/docker-entrypoint-initdb.d"
+          
