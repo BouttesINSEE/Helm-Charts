@@ -1,5 +1,5 @@
 api:
-  # Default values for Knowledge API.
+  # Default values for DemoQueenMongo API.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
 
@@ -88,14 +88,14 @@ api:
     mongodb.uri=
 
 ui:
-  # Default values for Knowledge UI.
+  # Default values for DemoQueenMongo UI.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
 
   replicaCount: 1
 
   image:
-    repository: ddecrulle/knowledge
+    repository: BouttesINSEE/DemoQueenMongo
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: dev
@@ -104,7 +104,7 @@ ui:
     API_URL: "https://chart-example-api.local"
 
   imagePullSecrets: []
-  nameOverride: "knowledge-ui"
+  nameOverride: "demo-ui"
   fullnameOverride: ""
 
   serviceAccount:
