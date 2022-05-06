@@ -1,53 +1,190 @@
-mongodb:
-  architecture: replicaset
-  arbiter:
-    enabled: false
-  replicaCount: 3
-  auth:
-    username: demo
-    database: poc
-    existingSecret: mongodb-secret
-  rbac:
+api:
+  # Default values for Knowledge API.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  replicaCount: 1
+
+  image:
+    repository: BouttesINSEE/DemoQueenMongo
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: dev
+
+  imagePullSecrets: []
+  nameOverride: "demo mongo queen"
+  fullnameOverride: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
     create: true
-  metrics:
-    enabled: true
-    image:
-      tag: 0.11.2-debian-10-r393
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext:
+    {}
+    # fsGroup: 2000
+
+  securityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  ingress:
+    enabled: false
+    annotations: {}
+
+    hosts:
+      - host: chart-example-api.local
+        paths:
+          - path: /
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
   resources:
-    limits:
-      cpu: "2.2"
-      memory: "6Gi"
-    requests:
-      cpu: "2"
-      memory: "4Gi"
-  tolerations:   
-    - key: "metallica"
-      operator: "Equal"
-      value: "perf"
-      effect: "NoSchedule"
-  initContainers:
-    - name: import-dump
-      image: busybox
-      env:
-        - name: DUMP_URI
-          value: https://io1h80.minio.lab.sspcloud.fr/diffusion/dump.zip
-      command: [ sh, -c ]
-      args:
-        [
-          "wget $DUMP_URI --output-document=/import/dump.zip
-          && unzip /import/dump.zip -d /import
-          && echo 'mongorestore --uri \"mongodb://$mongo_user:$mongo_pass@localhost:27017\" --drop 
-          --authenticationDatabase admin /docker-entrypoint-initdb.d/dump/' > /import/import.sh"
-        ]
-      volumeMounts:
-        - mountPath: /import
-          name: import-volume
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
-  extraVolumes:
-    - name: import-volume
-      emptyDir: {}
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
 
-  extraVolumeMounts:
-    - name: import-volume
-      mountPath: "/docker-entrypoint-initdb.d"
-          
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  properties: |-
+    #Mongo DB 
+    mongodb.uri=
+
+ui:
+  # Default values for Knowledge UI.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+
+  replicaCount: 1
+
+  image:
+    repository: ddecrulle/knowledge
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: dev
+
+  env:
+    API_URL: "https://chart-example-api.local"
+
+  imagePullSecrets: []
+  nameOverride: "knowledge-ui"
+  fullnameOverride: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext:
+    {}
+    # fsGroup: 2000
+
+  securityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  ingress:
+    enabled: false
+    annotations:
+      {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example-ui.local
+        paths:
+          - path: /
+
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+mongodb:
+  resources: {}
+  fullnameOverride: mongodb
+  architecture: replicaset
+  auth:
+    rootPassword: changeme
+    username: username
+    password: changeme
+    database: defaultdb
+    replicasetKey: default
+  replicaCount: 3
