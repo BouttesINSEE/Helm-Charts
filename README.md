@@ -1,4 +1,4 @@
-# poc-stromae-mongo
+# helm-charts
 
 **Ce dépôt contient :**
 - l'ensemble des helm charts utilisés (répertoire ./apps) pour construire l'environnement de test de performance sur dev.insee.io à savoir :
