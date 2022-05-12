@@ -2,5 +2,5 @@
 
 ```shell
 helm dependencies update
-helm install my-mongodb . -f values.yml -n $ns
+helm install <podename> bitnami/mongodb -f helm-charts/charts/mongodb/values.yaml
 ```
